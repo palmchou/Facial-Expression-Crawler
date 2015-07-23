@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from urlparse import urlparse
 from urllib import urlretrieve
 import os
+import json
 # import hashlib
 # import urllib
 # import urllib2
@@ -130,11 +131,12 @@ beg1 = 147  # 开始爬取点
 end1 = 1000  # 结束爬取点
 step = 21  # 爬取的步进
 
+settings = json.load(open("./local_settings.json"))
+path = str(settings["path"]) + "/google"
 # 保存图片路径
-dst = '/Users/palmchou/Coding/Python/crawler/project/data/test/set1'
+dst = path + "/img"
 # 保存爬取图片的信息路径
-txt_dst = '/Users/palmchou/Coding/Python/crawler/project/data/test/info'
-
+txt_dst = path + "/log"
 
 # keywords in keywords_list:
 # 26  gentleman+face
