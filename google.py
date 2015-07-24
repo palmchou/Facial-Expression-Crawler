@@ -95,7 +95,6 @@ def get_img_keyword(keyword, start, file_object, dst):
 
     return formatted_images
 
-
 keywords_list = [
     # 'one+month+old', 'two+months+old', 'three+months+old', 'four+months+old','five+months+old', 'six+months+old','seven+months+old', 'eight+months+old', 'nine+months+old',
     # 'ten+month+old', 'eleven+months+old', 'twelve+months+old','one+year+old','2+years+old', '3+years+old', '4+years+old', '5+years+old','6+years+old', '7+years+old','8+years+old',
@@ -122,9 +121,6 @@ keywords_list = [
     'middle-age+man+face',
     'middle-age+woman', 'middle-age+woman+face'
 ]
-
-
-# img = Image.open('E:/chalearn/Track2/cluture_event_recogntion/TRAIN/002076.jpg')
 
 socket.setdefaulttimeout(10)
 beg1 = 147  # 开始爬取点
@@ -182,12 +178,9 @@ for i in range(start_key, len(keywords_list)):
         # 爬取某一个start开始的step个图片
         ret = get_img_keyword(keywords, str(start), file_object, save_dst)
 
+        file_object.close()
+
         # 当爬取完某一个关键字后，跳出循环到下一个关键字
         if len(ret) < 21:
             print  'it is finished for the keywords (web cralwer): ', keywords
             continue
-
-        file_object.close()
-
-
-############
