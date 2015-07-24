@@ -1,4 +1,7 @@
 {
-  "_comment": "Please copy & rename this file to local_settings.json"
-  "path": "/path/to/where/store/all/the/data"
+  "_comment": "Please copy & rename this file to local_settings.json",
+  "path": "/path/to/where/store/all/the/data",
+  "server_address": "127.0.0.1",
+  "port": 5000,
+  "auth_key": "aiyoubucuo"
 }
