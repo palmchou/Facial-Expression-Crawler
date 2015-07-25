@@ -1,5 +1,5 @@
 # taskmanager.py
-#!/usr/bin/python 
+#!/usr/bin/python
 # -*- coding:utf-8 -*-
 
 import json
@@ -27,10 +27,15 @@ feedback = manager.get_feedback_queue()
 
 KeywordList = json.load(open("./baiduKeyWordList.json"))
 
+state = {}
 for i in KeywordList:
     print('Put task ...' + i)
-    task.put(i)
-    
+    buf = {'kw': i, 'start_at': 0}
+    task.put(buf)
+
+    r = {'aviliable': False, 'last_acquare': 0, 'success': 0, 'update': ""}
+    state['kw'] = r
+
 
 while task.qsize() != 0:
     if i != task.qsize():
@@ -38,6 +43,8 @@ while task.qsize() != 0:
         i = task.qsize()
     r = feedback.get(timeout=100)
     print('Result: '+str(r))
-    
+    state[r[0]] = r[1]
+
+
 
 manager.shutdown()

@@ -1,14 +1,12 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 # -*- coding:utf-8 -*-
 
 import time, sys, Queue
-from multiprocessing.managers import BaseManager 
+from multiprocessing.managers import BaseManager
 import re
 import urllib
 import urllib2
-import sys
 import os
-import time
 import json
 import socket
 # import string
@@ -67,7 +65,7 @@ def getImg(html, start, imgpath, Info):
     reg = r'objURL":"(.+?)",'
     imgre = re.compile(reg)
     imglist = imgre.findall(html)
-    
+
     success = 0
 
     for url in imglist:
@@ -135,30 +133,33 @@ feedback = m.get_feedback_queue()
 while True:
     try:
         n = task.get(timeout=1)
-        n = n.encode('gb2312')
-        print n
+        kw = n['kw'].encode('gb2312')
+        start_at = n['start_at']
+        print kw
 
         # 图像保存地址imgnewpath
-        imgnewpath = os.path.join(img_path, n)
+        imgnewpath = os.path.join(img_path, kw)
         if not os.path.isdir(imgnewpath):
             os.makedirs(imgnewpath)
         # 信息保存地址txtnewpath
-        txtnewpath = os.path.join(txt_path, n)
+        txtnewpath = os.path.join(txt_path, kw)
         if not os.path.isdir(txtnewpath):
             os.makedirs(txtnewpath)
 
-        for start in range(0, 1000, step):
+        for start in range(start_at, 1000, step):
             r = []
-            print n, 'start from ', str(start), ' to ', str(start + step - 1)
-            html = getHtml(n, start)  # 获取源代码
+            print kw, 'start from ', str(start), ' to ', str(start + step - 1)
+            html = getHtml(kw, start)  # 获取源代码
             savename = txtnewpath + '/' + str(start) + '.txt'
             print savename
             Info = open(savename, 'w')
-            r2 = getImg(html, start, imgnewpath, Info)  # 获取图像
+            success_num = getImg(html, start, imgnewpath, Info)  # 获取图像
             Info.close()
 
-            r.append(start)
-            r.append(r2)
+            r.append(n['kw'])
+            rr={'aviliable': True, 'last_acquare': start+60, 'success': success_num,
+                'update': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}
+            r.append(rr)
             feedback.put(r)
     except Queue.Empty:
         print('task queue is empty.')
