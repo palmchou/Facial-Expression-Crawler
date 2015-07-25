@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import json
 import random, time, Queue
 from multiprocessing.managers import BaseManager
 import socket
@@ -97,7 +96,7 @@ def get_img_keyword(keyword, start, file_object, dst):
 class QueueManager(BaseManager):
     pass
 
-QueueManager.register('keyword_queue')
+QueueManager.register('google_queue')
 QueueManager.register('feedback_queue')
 
 settings = json.load(open("./local_settings.json"))
@@ -108,7 +107,7 @@ auth_key = settings["auth_key"]
 manager = QueueManager(address=(server_address, 5000), authkey=auth_key)
 manager.connect()
 
-keyword_queue = manager.keyword_queue()
+keyword_queue = manager.google_queue()
 feedback_queue = manager.feedback_queue()
 
 end_at = 1000
@@ -122,6 +121,9 @@ txt_dst = path + "/log"
 while True:
     try:
         kw = keyword_queue.get(timeout=2)
+        fb_info = {'se': 'google', 'id': kw['id'], 'last_acquired': kw['last_acquired'], 'succ_count': 0}
+        # let the sever notice this keyword is on working
+        feedback_queue.put(fb_info)
         keywords = kw['words']
         start_at = kw['last_acquired'] + 1
         print 'Working on keyword:', keywords, ', starting from', start_at
