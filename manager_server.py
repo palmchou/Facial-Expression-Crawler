@@ -13,9 +13,12 @@ from multiprocessing.managers import BaseManager
 
 def update_with(feedback, kw_dict):
     kw = kw_dict[feedback['se']][feedback['id']]
+    l_kw = keywords_local[feedback['se']][feedback['id']]
     kw['available'] = False
     kw['last_acquired'] = feedback['last_acquired']
+    l_kw['last_acquired'] = feedback['last_acquired']
     kw['succ_count'] += feedback['succ_count']
+    l_kw['succ_count'] = kw['succ_count']
     if kw['last_acquired'] == 1000:
         kw['last_update'] = datetime.datetime.utcnow().max
         print kw, 'finished'
@@ -36,8 +39,9 @@ QueueManager.register('google_queue', callable=lambda: gg_queue)
 QueueManager.register('feedback_queue', callable=lambda: fb_queue)
 
 socket.setdefaulttimeout(10)
-
-settings = json.load(open("./local_settings.json"))
+tmp_fp = open("./local_settings.json")
+settings = json.load(tmp_fp)
+tmp_fp.close()
 auth_key = settings["auth_key"]
 port_num = settings["port"]
 lost_diff = datetime.timedelta(minutes=10)
@@ -50,7 +54,9 @@ google_queue = manager.google_queue()
 feedback_queue = manager.feedback_queue()
 
 # 获取本地保存的 关键词信息
-keywords_local = json.load(open("./keywords.json"))
+tmp_fp = open("./keywords.json")
+keywords_local = json.load(tmp_fp)
+tmp_fp.close()
 keywords_status = copy.deepcopy(keywords_local)
 
 # add keywords to queue
@@ -80,14 +86,23 @@ for (kw_id, kw) in kw_baidu.items():
         kw['last_update'] = datetime.datetime.utcnow().max
 
 # get feedback
+i = 0
 while True:
     time.sleep(120)
+    i += 1
     try:
+        # read feed back and update
         while feedback_queue.qsize() != 0:
             fb_info = feedback_queue.get(timeout=5)
             update_with(fb_info, keywords_status)
-        now = datetime.datetime.utcnow()
 
+        # save keywords information to local disk every 10 mins
+        if (i % 5) == 0:
+            tmp_fp = open('keywords.update.json', 'w')
+            json.dump(keywords_local, tmp_fp)
+            tmp_fp.close()
+        # check if worker lost connection, and put keyword back to queue
+        now = datetime.datetime.utcnow()
         for (kw_id, kw) in keywords_status['google'].items():
             if not kw['available']:
                 if (now - kw['last_update']) > lost_diff:
@@ -135,4 +150,7 @@ while True:
             break
     except StandardError, e:
         logging.exception(e)
+tmp_fp = open('keywords.update.json', 'w')
+json.dump(keywords_local, tmp_fp)
+tmp_fp.close()
 print 'server exit'
