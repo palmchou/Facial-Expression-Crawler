@@ -42,6 +42,8 @@ def get_img_keyword(keyword, start, file_object, dst):
     t4 = ' fail'
     t5 = ' exist'
 
+    succ_cot = 0
+
     for r in results:
         try:
             if "imgres?imgurl" in r['href']:
@@ -77,6 +79,7 @@ def get_img_keyword(keyword, start, file_object, dst):
 
         try:
             urlretrieve(image_f, name)
+            succ_cot += 1
             tag = 1
         except:
             tag = 0
@@ -90,7 +93,7 @@ def get_img_keyword(keyword, start, file_object, dst):
         print str_print
         print >> file_object, str_print
 
-    return formatted_images
+    return formatted_images, succ_cot
 
 
 class QueueManager(BaseManager):
@@ -118,14 +121,18 @@ dst = path + "/img"
 # 保存爬取图片的信息路径
 txt_dst = path + "/log"
 
+i = 0
 while True:
     try:
         kw = keyword_queue.get(timeout=2)
         fb_info = {'se': 'google', 'id': kw['id'], 'last_acquired': kw['last_acquired'], 'succ_count': 0}
         # let the sever notice this keyword is on working
         feedback_queue.put(fb_info)
-        keywords = kw['words']
-        start_at = kw['last_acquired'] + 1
+        keywords = kw['words'].encode('utf-8')
+        last_acqu = kw['last_acquired']
+        last_reported_acqu = last_acqu
+        start_at = last_acqu + 1
+        success_count = 0
         print 'Working on keyword:', keywords, ', starting from', start_at
         # 以关键字命名文件夹（存放爬取的图片）
         save_dst = dst + '/' + keywords
@@ -157,12 +164,25 @@ while True:
 
             print keywords, 'start from ', str(start), ' to ', str(start + step - 1)
             # 爬取某一个start开始的step个图片
-            ret = get_img_keyword(keywords, str(start), file_object, save_dst)
-
+            (ret, succ_cot) = get_img_keyword(keywords, str(start), file_object, save_dst)
             file_object.close()
+            success_count += succ_cot
+            last_acqu += len(ret)
+            if last_acqu - last_reported_acqu > 60:
+                fb_info['last_acquired'] = last_acqu
+                fb_info['succ_count'] = success_count
+                feedback_queue.put(fb_info)
+                last_reported_acqu = last_acqu
+                success_count = 0
+
             # 当爬取完某一个关键字后，跳出循环到下一个关键字
             if len(ret) < 21:
                 print 'it is finished for the keywords (web cralwer): ', keywords
+                last_acqu += len(ret)
+                fb_info['last_acquired'] = end_at
+                feedback_queue.put(fb_info)
+                last_reported_acqu = last_acqu
+                break
     except Queue.Empty:
         print 'task finished'
         break

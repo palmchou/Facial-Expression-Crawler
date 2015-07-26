@@ -44,7 +44,9 @@ settings = json.load(tmp_fp)
 tmp_fp.close()
 auth_key = settings["auth_key"]
 port_num = settings["port"]
-lost_diff = datetime.timedelta(minutes=10)
+# if a keyword has not been updated for 15 min, it may be lost,
+#  need to put back to queue
+lost_diff = datetime.timedelta(minutes=15)
 
 manager = QueueManager(address=('', port_num), authkey=auth_key)
 manager.start()
@@ -64,7 +66,7 @@ keywords_status = copy.deepcopy(keywords_local)
 kw_google = keywords_status['google']
 for (kw_id, kw) in kw_google.items():
     if kw['last_acquired'] < 1000:
-        print 'Add keyword', kw['words'], 'to google queue'
+        print 'Add keyword', kw['words'].encode('utf-8'), 'to google queue'
         kw['id'] = kw_id
         google_queue.put(kw)
         kw['available'] = True
@@ -76,7 +78,7 @@ for (kw_id, kw) in kw_google.items():
 kw_baidu = keywords_status['baidu']
 for (kw_id, kw) in kw_baidu.items():
     if kw['last_acquired'] < 1000:
-        print 'Add keyword', kw['words'], 'to baidu queue'
+        print 'Add keyword', kw['words'].encode('utf-8'), 'to baidu queue'
         kw['id'] = kw_id
         baidu_queue.put(kw)
         kw['available'] = True
