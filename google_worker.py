@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import random, time, Queue
+import Queue
 from multiprocessing.managers import BaseManager
 import socket
 import time
@@ -35,7 +35,7 @@ def get_img_keyword(keyword, start, file_object, dst):
     soup = BeautifulSoup(htmltext)
     results = soup.findAll("a")
 
-    cot = 0
+    cot = start
     t1 = 'source: '
     t2 = ' dst '
     t3 = ' success'
@@ -68,7 +68,6 @@ def get_img_keyword(keyword, start, file_object, dst):
             name = dst + '/' + image_name[0:len(image_name) - len(type) - 1] + '_' + str(cot) + '.' + type
 
         # type = image_name.split('.')[-1]
-        cot += 1
         # name = dst + '/' + image_name[0:len(image_name)-len(type)-1] + '_' + str(cot) + '.' + type
 
         if os.path.exists(name):
@@ -92,6 +91,7 @@ def get_img_keyword(keyword, start, file_object, dst):
 
         print str_print
         print >> file_object, str_print
+        cot += 1
 
     return formatted_images, succ_cot
 
@@ -107,7 +107,8 @@ socket.setdefaulttimeout(10)
 
 server_address = settings["server_address"]
 auth_key = settings["auth_key"]
-manager = QueueManager(address=(server_address, 5000), authkey=auth_key)
+port = settings['port']
+manager = QueueManager(address=(server_address, port), authkey=auth_key)
 manager.connect()
 
 keyword_queue = manager.google_queue()
@@ -178,10 +179,9 @@ while True:
             # 当爬取完某一个关键字后，跳出循环到下一个关键字
             if len(ret) < 21:
                 print 'it is finished for the keywords (web cralwer): ', keywords
-                last_acqu += len(ret)
                 fb_info['last_acquired'] = end_at
                 feedback_queue.put(fb_info)
-                last_reported_acqu = last_acqu
+                last_reported_acqu = end_at
                 break
     except Queue.Empty:
         print 'task finished'
