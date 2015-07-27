@@ -21,7 +21,7 @@ def get_img_keyword(keyword, start, file_object, dst):
     }
     req_url = str("https://www.google.com.hk/search?q=" + keyword +
                  "&newwindow=1&safe=active&hl=en&biw=1920&bih=955&site=imghp&tbm=isch&ijn=3"
-                 "&ei=azx1VYvkBqGzmwXs04LoDg&start=" + start)
+                 "&ei=azx1VYvkBqGzmwXs04LoDg&start=" + str(start))
     conn.request("GET", req_url, headers=headers)
 
     r1 = conn.getresponse()
@@ -93,7 +93,7 @@ def get_img_keyword(keyword, start, file_object, dst):
         print >> file_object, str_print
         cot += 1
 
-    return formatted_images, succ_cot
+    return (formatted_images, succ_cot)
 
 
 class QueueManager(BaseManager):
@@ -165,7 +165,7 @@ while True:
 
             print keywords, 'start from ', str(start), ' to ', str(start + step - 1)
             # 爬取某一个start开始的step个图片
-            (ret, succ_cot) = get_img_keyword(keywords, str(start), file_object, save_dst)
+            (ret, succ_cot) = get_img_keyword(keywords, start, file_object, save_dst)
             file_object.close()
             success_count += succ_cot
             last_acqu += len(ret)
