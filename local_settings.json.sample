@@ -3,5 +3,6 @@
   "path": "/path/to/where/store/all/the/data",
   "server_address": "127.0.0.1",
   "port": 5000,
-  "auth_key": "1234"
+  "auth_key": "1234",
+  "end_at": 1000
 }

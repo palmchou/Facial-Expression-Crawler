@@ -73,10 +73,8 @@ def getImg(html, start, imgpath, Info):
         image_name = tt[-1]
         type = image_name.split('.')[-1]
         if type != 'jpg' and type != 'png' and type != 'JPG' and type != 'PNG':
-            type = 'jpg'
-            name = imgpath + '/' + image_name + '_' + str(cot) + '.' + type
-        else:
-            name = imgpath + '/' + image_name[0:len(image_name) - len(type) - 1] + '_' + str(cot) + '.' + type
+            type += '.unknow'
+        name = imgpath + '/' + str(cot) + '.' + type
         cot += 1
         if os.path.exists(name):
             str_print = t1 + imgurl + t2 + name + t5
@@ -120,7 +118,7 @@ feedback_queue = manager.feedback_queue()
 socket.setdefaulttimeout(10)
 
 step = 60
-end_at = 1000
+end_at = settings['end_at']
 path = str(settings["path"]) + "/baidu"
 # 保存图片路径
 img_path = path + "/img"
@@ -141,11 +139,11 @@ while True:
         print 'Working on keyword:', keywords, ', starting from', start_at
 
         # 图像保存地址imgnewpath
-        imgnewpath = os.path.join(img_path, keywords)
+        imgnewpath = img_path + '/' + kw['classification'].encode('utf-8') + '/' + keywords
         if not os.path.isdir(imgnewpath):
             os.makedirs(imgnewpath)
             # 信息保存地址txtnewpath
-        txtnewpath = os.path.join(txt_path, keywords)
+        txtnewpath = txt_path + '/' + kw['classification'].encode('utf-8') + '/' + keywords
         if not os.path.isdir(txtnewpath):
             os.makedirs(txtnewpath)
 
@@ -159,7 +157,7 @@ while True:
             Info.close()
             success_count += succ_cot
             last_acqu += acqu_cot
-            if (last_acqu - last_reported_acqu) > 60:
+            if (last_acqu - last_reported_acqu) >= 60:
                 fb_info['last_acquired'] = last_acqu
                 fb_info['succ_count'] = success_count
                 feedback_queue.put(fb_info)
@@ -171,7 +169,7 @@ while True:
                 feedback_queue.put(fb_info)
                 last_reported_acqu = end_at
                 break
-            if last_acqu >= 1000:
+            if last_acqu >= end_at:
                 print 'it is finished for the keywords (web cralwer): ', keywords
                 fb_info['last_acquired'] = end_at
                 feedback_queue.put(fb_info)

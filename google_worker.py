@@ -62,10 +62,8 @@ def get_img_keyword(keyword, start, file_object, dst):
 
         type = image_name.split('.')[-1]
         if type != 'jpg' and type != 'png' and type != 'JPG' and type != 'PNG':
-            type = 'jpg'
-            name = dst + '/' + image_name + '_' + str(cot) + '.' + type
-        else:
-            name = dst + '/' + image_name[0:len(image_name) - len(type) - 1] + '_' + str(cot) + '.' + type
+            type += '.unknow'
+        name = dst + '/' + str(cot) + '.' + type
 
         # type = image_name.split('.')[-1]
         # name = dst + '/' + image_name[0:len(image_name)-len(type)-1] + '_' + str(cot) + '.' + type
@@ -114,7 +112,7 @@ manager.connect()
 keyword_queue = manager.google_queue()
 feedback_queue = manager.feedback_queue()
 
-end_at = 1000
+end_at = settings['end_at']
 step = 21
 path = str(settings["path"]) + "/google"
 # 保存图片路径
@@ -137,11 +135,12 @@ while True:
         print 'Working on keyword:', keywords, ', starting from', start_at
         # 以关键字命名文件夹（存放爬取的图片）
         save_dst = dst + '/' + keywords
+        save_dst = dst + '/' + kw['classification'].encode('utf-8') + '/' + keywords
         if not os.path.exists(save_dst):
             os.makedirs(save_dst)
 
         # 以关键字命名文件夹（存放爬取的图片的txt信息）
-        save_txt_dst = txt_dst + '/' + keywords
+        save_txt_dst = txt_dst + '/' + kw['classification'].encode('utf-8') + '/' + keywords
         if not os.path.exists(save_txt_dst):
             os.makedirs(save_txt_dst)
 

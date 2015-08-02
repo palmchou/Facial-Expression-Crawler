@@ -19,7 +19,7 @@ def update_with(feedback, kw_dict):
     l_kw['last_acquired'] = feedback['last_acquired']
     kw['succ_count'] += feedback['succ_count']
     l_kw['succ_count'] = kw['succ_count']
-    if kw['last_acquired'] == 1000:
+    if kw['last_acquired'] == end_at:
         kw['last_update'] = datetime.datetime.utcnow().max
         print kw, 'finished'
     else:
@@ -44,6 +44,7 @@ settings = json.load(tmp_fp)
 tmp_fp.close()
 auth_key = settings["auth_key"]
 port_num = settings["port"]
+end_at = settings["end_at"]
 # if a keyword has not been updated for 15 min, it may be lost,
 #  need to put back to queue
 lost_diff = datetime.timedelta(minutes=15)
@@ -65,7 +66,7 @@ keywords_status = copy.deepcopy(keywords_local)
 # google
 kw_google = keywords_status['google']
 for (kw_id, kw) in kw_google.items():
-    if kw['last_acquired'] < 1000:
+    if kw['last_acquired'] < end_at:
         print 'Add keyword', kw['words'].encode('utf-8'), 'to google queue'
         kw['id'] = kw_id
         google_queue.put(kw)
@@ -77,7 +78,7 @@ for (kw_id, kw) in kw_google.items():
 # baidu
 kw_baidu = keywords_status['baidu']
 for (kw_id, kw) in kw_baidu.items():
-    if kw['last_acquired'] < 1000:
+    if kw['last_acquired'] < end_at:
         print 'Add keyword', kw['words'].encode('utf-8'), 'to baidu queue'
         kw['id'] = kw_id
         baidu_queue.put(kw)
