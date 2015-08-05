@@ -145,7 +145,7 @@ while True:
             os.makedirs(save_txt_dst)
 
         for start in range(start_at, end_at, step):
-
+            last_acqu = start - 1
             link_txt = save_txt_dst + '/' + str(start) + '.txt'
 
             if os.path.exists(link_txt):
