@@ -20,7 +20,7 @@ def get_img_keyword(keyword, start, file_object, dst):
         'referer': 'https://www.google.com.hk/'
     }
     req_url = str("https://www.google.com.hk/search?q=" + keyword +
-                 "&newwindow=1&safe=active&hl=en&biw=1920&bih=955&site=imghp&tbm=isch&ijn=3"
+                 "&tbs=itp:face&newwindow=1&safe=active&hl=en&biw=1920&bih=955&site=imghp&tbm=isch&ijn=3"
                  "&ei=azx1VYvkBqGzmwXs04LoDg&start=" + str(start))
     conn.request("GET", req_url, headers=headers)
 
@@ -168,7 +168,7 @@ while True:
             file_object.close()
             success_count += succ_cot
             last_acqu += len(ret)
-            if last_acqu - last_reported_acqu > 60:
+            if last_acqu - last_reported_acqu >= 60:
                 fb_info['last_acquired'] = last_acqu
                 fb_info['succ_count'] = success_count
                 feedback_queue.put(fb_info)
@@ -177,6 +177,12 @@ while True:
 
             # 当爬取完某一个关键字后，跳出循环到下一个关键字
             if len(ret) < 21:
+                print 'it is finished for the keywords (web cralwer): ', keywords
+                fb_info['last_acquired'] = end_at
+                feedback_queue.put(fb_info)
+                last_reported_acqu = end_at
+                break
+            if last_acqu >= end_at:
                 print 'it is finished for the keywords (web cralwer): ', keywords
                 fb_info['last_acquired'] = end_at
                 feedback_queue.put(fb_info)
