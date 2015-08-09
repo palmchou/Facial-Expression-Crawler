@@ -8,6 +8,7 @@ import httplib
 from bs4 import BeautifulSoup
 from urlparse import urlparse
 from urllib import urlretrieve
+from urllib import quote
 import os
 import json
 
@@ -19,7 +20,7 @@ def get_img_keyword(keyword, start, file_object, dst):
         # 'accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'referer': 'https://www.google.com.hk/'
     }
-    req_url = str("https://www.google.com.hk/search?q=" + keyword +
+    req_url = str("https://www.google.com.hk/search?q=" + quote(keyword) +
                  "&tbs=itp:face&newwindow=1&safe=active&hl=en&biw=1920&bih=955&site=imghp&tbm=isch&ijn=3"
                  "&ei=azx1VYvkBqGzmwXs04LoDg&start=" + str(start))
     conn.request("GET", req_url, headers=headers)

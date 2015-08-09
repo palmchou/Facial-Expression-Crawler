@@ -10,13 +10,14 @@ import os
 import json
 import socket
 import logging
+from urllib import quote
 
 
 def getHtml(keyword, start):
     req_header = {'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 360SE'}
     url = 'http://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592&is=&fp=result' \
-          '&queryWord=' + keyword + '&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0' \
-                                    '&word=' + keyword + '&s=0&se=&tab=&width=&height=&face=1&istype=2&qc=&nc=&fr=%26fr%3D&pn=' + str(
+          '&queryWord=' + quote(keyword) + '&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0' \
+                                    '&word=' + quote(keyword) + '&s=0&se=&tab=&width=&height=&face=1&istype=2&qc=&nc=&fr=%26fr%3D&pn=' + str(
         start) + '&rn=60&1433936881420='
     # url='http://cn.bing.com/images/async?q='+keyword+'&async=content&first='+str(start)+'&count=35&IID=images.1&IG=06fd0edefcfa4c9a8be876677b2cd340&CW=1693&CH=312&dgsrr=false&qft=+filterui:face-face&form=R5IR30'
     req = urllib2.Request(url, None, req_header)
